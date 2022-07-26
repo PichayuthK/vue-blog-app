@@ -1,17 +1,20 @@
 import { defineStore } from "pinia";
+import { Post, thisMonth, thisWeek, today } from "../posts";
 
 interface PostsState {
-  foo: string;
+  ids: string[];
+  all: Map<string, Post>;
 }
 
 export const usePosts = defineStore("posts", {
   state: (): PostsState => ({
-    foo: "foo",
+    ids: [today.id, thisWeek.id, thisMonth.id],
+    all: new Map([
+      [today.id, today],
+      [thisWeek.id, thisWeek],
+      [thisMonth.id, thisMonth],
+    ]),
   }),
 
-  actions: {
-    updateFoo(foo: string) {
-      this.foo = foo;
-    },
-  },
+  actions: {},
 });
