@@ -2,6 +2,7 @@
 import { onMounted, ref, watch } from "vue";
 import { TimelinePost } from "../posts";
 import { marked } from "marked";
+import highlightjs from "highlight.js";
 
 const props = defineProps<{
   post: TimelinePost;
@@ -15,9 +16,19 @@ const contentEditable = ref<HTMLDivElement>();
 watch(
   content,
   (newContent) => {
-    marked.parse(newContent, (err, parseResult) => {
-      html.value = parseResult;
-    });
+    marked.parse(
+      newContent,
+      {
+        gfm: true,
+        breaks: true,
+        highlight: (code) => {
+          return highlightjs.highlightAuto(code).value;
+        },
+      },
+      (err, parseResult) => {
+        html.value = parseResult;
+      }
+    );
   },
   {
     immediate: true,
@@ -53,10 +64,42 @@ function handleInput() {
 
   <div class="columns">
     <div class="column">
-      <div contenteditable ref="contentEditable" @input="handleInput" />
+      <div
+        class="realtime-editor"
+        contenteditable
+        ref="contentEditable"
+        @input="handleInput"
+      />
     </div>
     <div class="column">
-      <div v-html="html" />
+      <div class="realtime-editor" v-html="html" />
     </div>
   </div>
 </template>
+
+<style>
+@import "highlight.js/styles/atom-one-dark.css";
+
+.realtime-editor > ul {
+  list-style: revert !important;
+  list-style-position: inside !important;
+}
+
+.realtime-editor > h1,
+.realtime-editor > h2,
+.realtime-editor > h3,
+.realtime-editor > h4,
+.realtime-editor > h5,
+.realtime-editor > h6 {
+  font-size: revert !important;
+  margin: 10px 0 !important;
+}
+
+.realtime-editor > pre {
+  margin: 10px 0 !important;
+}
+
+.realtime-editor > p {
+  margin: 10px 0 !important;
+}
+</style>
